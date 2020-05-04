@@ -1,8 +1,17 @@
-import 'package:db_with_type_adapter/screens/PAGE_Home.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import 'package:path_provider/path_provider.dart';
+
+import 'ui/screens/PAGE_Error.dart';
+import 'ui/screens/PAGE_Home.dart';
 
 void main() {
   runApp(MyApp());
+}
+
+Future _initHive() async {
+  var dir = await getApplicationDocumentsDirectory();
+  Hive.init(dir.path);
 }
 
 class MyApp extends StatelessWidget {
@@ -12,14 +21,20 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-
-        primarySwatch: Colors.blue,
-        // This makes the visual density adapt to the platform that you run
-        // the app on. For desktop platforms, the controls will be smaller and
-        // closer together (more dense) than on mobile platforms.
+        primarySwatch: Colors.amber,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: HomePage(title: 'Empty page'),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => FutureBuilder(
+            future: _initHive(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                if (snapshot.error) return ErrorPage();
+              }
+              return HomePage(title: 'Empty page');
+            })
+      },
     );
   }
 }
