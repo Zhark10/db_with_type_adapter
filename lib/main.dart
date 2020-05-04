@@ -10,6 +10,7 @@ void main() {
 }
 
 Future _initHive() async {
+  WidgetsFlutterBinding.ensureInitialized();
   var dir = await getApplicationDocumentsDirectory();
   Hive.init(dir.path);
 }
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Continue',
       theme: ThemeData(
         primarySwatch: Colors.amber,
         visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -30,9 +31,11 @@ class MyApp extends StatelessWidget {
             future: _initHive(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.done) {
-                if (snapshot.error) return ErrorPage();
+                if (snapshot.error != null) return ErrorPage(error: snapshot.error);
+                return HomePage(title: 'Empty page');
+              } else {
+                return Scaffold();
               }
-              return HomePage(title: 'Empty page');
             })
       },
     );
